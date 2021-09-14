@@ -1,0 +1,100 @@
+package cpsc2150.banking.models;
+
+public class Mortgage extends AbsMortgage implements IMortgage{
+
+
+    private double monthlyPayment;
+    private double monthlyRate;
+    private double debtToIncomeRatio;
+    private double principal;
+    private double percentDown;
+    private int numPayments;
+    private int years;
+    private double baseAPR;
+
+
+
+    Mortgage(double houseCost, double downPayment, int yrs, ICustomer cust){
+
+        // Getting the values for our mortgage variables
+        years = yrs;
+        principal = houseCost - downPayment;
+        percentDown = downPayment / houseCost;
+        baseAPR = BASERATE;
+        numPayments = years * 12;
+
+
+            // If loan is less than 30 years, add 0.5% to APR. 1% otherwise
+            if (years < MAX_YEARS){
+                baseAPR = baseAPR + GOODRATEADD;
+            }
+            else {
+                baseAPR = baseAPR + NORMALRATEADD;
+            }
+
+            // If percent down is not at least 20%, add 0.5% to APR
+            if (percentDown <= PREFERRED_PERCENT_DOWN){
+                baseAPR = baseAPR + GOODRATEADD;
+            }
+
+
+            // Adding to APR based on customer credit score
+
+            // VERY BAD
+            if (cust.getCreditScore() < BADCREDIT){
+                baseAPR = baseAPR + VERYBADRATEADD;
+            }
+            // BAD
+            if (cust.getCreditScore() >= BADCREDIT && cust.getCreditScore() < FAIRCREDIT){
+                baseAPR = baseAPR + BADRATEADD;
+            }
+            // FAIR
+            if (cust.getCreditScore() >= FAIRCREDIT && cust.getCreditScore() < GOODCREDIT){
+                baseAPR = baseAPR + NORMALRATEADD;
+            }
+            // GOOD
+            if (cust.getCreditScore() >= GOODCREDIT && cust.getCreditScore() < GREATCREDIT){
+                baseAPR = baseAPR + GOODRATEADD;
+            }
+
+
+        // Computing our monthly interest rate now that we have determined our APR
+        monthlyRate = baseAPR / MONTHS_IN_YEAR;
+        // Computing our monthly payments now that we have determined our rate
+        monthlyPayment = (monthlyRate * principal) / (1 - (1 + monthlyRate) - numPayments);
+        // Computing our debt to income ratio now that we have determined our monthly payment
+        debtToIncomeRatio = (monthlyPayment * 12) / cust.getIncome();
+
+    }
+
+
+    @Override
+    public boolean loanApproved() {
+
+        if ((monthlyRate * MONTHS_IN_YEAR < RATETOOHIGH) && (percentDown >= MIN_PERCENT_DOWN) && (debtToIncomeRatio <= DTOITOOHIGH)){
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public double getPayment() {
+        return monthlyPayment;
+    }
+
+    @Override
+    public double getRate() {
+        return monthlyRate;
+    }
+
+    @Override
+    public double getPrincipal() {
+        return principal;
+    }
+
+    @Override
+    public int getYears() {
+        return years;
+    }
+}

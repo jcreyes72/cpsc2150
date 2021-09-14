@@ -1,0 +1,3 @@
+Here are some course labs and individual practice I did in Java for my CPSC 2150 class. Below is a desciption of the course
+
+Intensive study of software development foundations. Advanced coverage of programming language primitives, function-level design principles, and standard development and debugging tools. Introductory coverage of module-level design principles, program specification and reasoning principles, and validation and verification techniques.
